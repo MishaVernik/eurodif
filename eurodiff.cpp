@@ -44,6 +44,11 @@ void solve(int numberOfCountries, int caseNumber){
         string name;
         int xl, xh, yl, yh;
         cin >> name >> xl >> yl >> xh >> yh;
+        if (xl < 0 || yl < 0 || xh < 0 || yh < 0){
+            cout << "No negative coordinates\n";
+            exit(-1);
+        }
+            
          
         countryIDs[country] = {(xh - xl + 1)*(yh - yl + 1),name};
         countryComplete[country] = false;
