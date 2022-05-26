@@ -25,21 +25,21 @@ typedef struct City{
 
 const vector<int> grid_indecies = {0, 1, 0, -1, 0};
 
-void solve(int numberOfCountries, int caseNumber){
-    if (numberOfCountries == 0){
-        return ;
-    }
-    // Init grid
-    vector<vector<City>> grid;
-    for (int x = 0; x < MAX_SIZE; x++){
-        vector<City> v_c;
-        grid.push_back(v_c);
-        for (int y = 0; y < MAX_SIZE; y++){
-            City c;
-            grid[x].push_back(c);
+void printMap(const int& numberOfCountries, const int& caseNumber, vector<pair<int,int>>& completeCountryTime){
+     sort(completeCountryTime.begin(), completeCountryTime.end(), [&](const auto& left, const auto& right){
+        if (left.second == right.second){
+            return countryIDs[left.first].second < countryIDs[right.second].second;
         }
+        return left.second < right.second;
+    });
+    
+    cout << "Case Number" << caseNumber << endl;
+    for (int i = 0; i < completeCountryTime.size(); i++){
+       cout << countryIDs[completeCountryTime[i].first].second << " " << (numberOfCountries == 1 ? 0 : completeCountryTime[i].second) << endl;
     }
-    // Read Input
+}
+void readInput(const int& numberOfCountries, vector<vector<City>>& grid){
+     // Read Input
     for (int country = 0; country < numberOfCountries; country++){
         string name;
         int xl, xh, yl, yh;
@@ -62,6 +62,30 @@ void solve(int numberOfCountries, int caseNumber){
             }
         }
     }
+}
+
+void init(vector<vector<City>>& grid){
+   // Init grid
+    
+    for (int x = 0; x < MAX_SIZE; x++){
+        vector<City> v_c;
+        grid.push_back(v_c);
+        for (int y = 0; y < MAX_SIZE; y++){
+            City c;
+            grid[x].push_back(c);
+        }
+    } 
+}
+
+void solve(int numberOfCountries, int caseNumber){
+    if (numberOfCountries == 0){
+        return ;
+    }
+    // Init grid
+    vector<vector<City>> grid;
+    init(grid);
+    // Read Input
+    readInput(numberOfCountries, grid);
     
     int completeCountries = 0;
     int days = 1;
@@ -131,17 +155,7 @@ void solve(int numberOfCountries, int caseNumber){
         days++;
     }
     // Print map
-    sort(completeCountryTime.begin(), completeCountryTime.end(), [&](const auto& left, const auto& right){
-        if (left.second == right.second){
-            return countryIDs[left.first].second < countryIDs[right.second].second;
-        }
-        return left.second < right.second;
-    });
-    
-    cout << "Case Number" << caseNumber << endl;
-    for (int i = 0; i < completeCountryTime.size(); i++){
-       cout << countryIDs[completeCountryTime[i].first].second << " " << (numberOfCountries == 1 ? 0 : completeCountryTime[i].second) << endl;
-    }
+    printMap(numberOfCountries, caseNumber, completeCountryTime);  
 }
 
 int main()
