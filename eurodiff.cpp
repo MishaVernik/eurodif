@@ -23,12 +23,12 @@ typedef struct City{
     City():country(-1), isComplete(false){};
 } City;
 
-const vector<int> grid_indecies = {0, 1, 0, -1, 0};
+const vector<int> grid_indicies = {0, 1, 0, -1, 0};
 
 void printMap(const int& numberOfCountries, const int& caseNumber, vector<pair<int,int>>& completeCountryTime){
      sort(completeCountryTime.begin(), completeCountryTime.end(), [&](const auto& left, const auto& right){
         if (left.second == right.second){
-            return countryIDs[left.first].second < countryIDs[right.second].second;
+            return countryIDs[left.first].second < countryIDs[right.first].second;
         }
         return left.second < right.second;
     });
@@ -65,8 +65,7 @@ void readInput(const int& numberOfCountries, vector<vector<City>>& grid){
 }
 
 void init(vector<vector<City>>& grid){
-   // Init grid
-    
+   // Init grid   
     for (int x = 0; x < MAX_SIZE; x++){
         vector<City> v_c;
         grid.push_back(v_c);
@@ -94,27 +93,25 @@ void solve(int numberOfCountries, int caseNumber){
         
         // income from the cities
         for (int x = 0; x < MAX_SIZE; x++){
-            for (int y = 0; y < MAX_SIZE; y++){
-                if (grid[x][y].country != -1){
-                    for (int country = 0; country < (int)grid[x][y].coins.size(); country++){
-                        // 1. For all neibghour cities send all types of coins
-                        int hasChanges = 0;
-                        for (int grid_index = 0; grid_index < grid_indecies.size() - 1; grid_index++){
-                            if (x + grid_indecies[grid_index]     < MAX_SIZE && 
-                                y + grid_indecies[grid_index + 1] < MAX_SIZE &&
-                                x + grid_indecies[grid_index]     >= 0       && 
-                                y + grid_indecies[grid_index + 1] >= 0       &&
-                            grid[x + grid_indecies[grid_index]][y + grid_indecies[grid_index + 1]].country != -1){
-                                grid[x + grid_indecies[grid_index]][y + grid_indecies[grid_index + 1]].sending_coins[country] += grid[x][y].coins[country] / REPRESENTITIVE_COINS;
-                                hasChanges++;
-                            }
-                        }
-                      
-                        if (hasChanges != 0){
-                            grid[x][y].sending_coins[country] -= hasChanges * (grid[x][y].coins[country] / REPRESENTITIVE_COINS);
+            for (int y = 0; y < MAX_SIZE; y++){                
+                for (int country = 0; country < (int)grid[x][y].coins.size() && grid[x][y].country != -1; country++){
+                    // 1. For all neibghour cities send all types of coins
+                    int hasChanges = 0;
+                    for (int grid_index = 0; grid_index < grid_indecies.size() - 1; grid_index++){
+                        if (x + grid_indecies[grid_index]     < MAX_SIZE && 
+                            y + grid_indecies[grid_index + 1] < MAX_SIZE &&
+                            x + grid_indecies[grid_index]     >= 0       && 
+                            y + grid_indecies[grid_index + 1] >= 0       &&
+                        grid[x + grid_indecies[grid_index]][y + grid_indecies[grid_index + 1]].country != -1){
+                            grid[x + grid_indecies[grid_index]][y + grid_indecies[grid_index + 1]].sending_coins[country] += grid[x][y].coins[country] / REPRESENTITIVE_COINS;
+                            hasChanges++;
                         }
                     }
-                }
+
+                    if (hasChanges != 0){
+                        grid[x][y].sending_coins[country] -= hasChanges * (grid[x][y].coins[country] / REPRESENTITIVE_COINS);
+                    }
+                }                
             }
         }
         
@@ -123,18 +120,18 @@ void solve(int numberOfCountries, int caseNumber){
         for (int x = 0; x < MAX_SIZE; x++){
             for (int y = 0; y < MAX_SIZE; y++){
                 if (grid[x][y].country != -1){
-                    int isComplete = 0;
+                    int completeCities = 0;
                     for (int country = 0; country < (int)grid[x][y].coins.size(); country++){
                         grid[x][y].coins[country] += grid[x][y].sending_coins[country];
                         grid[x][y].sending_coins[country] = 0;
                         
                         if (grid[x][y].coins[country] > 0){
-                            isComplete++;
+                            completeCities++;
                         }
                     }
                     if (grid[x][y].isComplete){
                         countryCount[grid[x][y].country]++;
-                    }else if (isComplete == (int)grid[x][y].coins.size()){
+                    }else if (completeCities == (int)grid[x][y].coins.size()){
                         grid[x][y].isComplete = true;
                         countryCount[grid[x][y].country]++;
                     }
@@ -143,12 +140,13 @@ void solve(int numberOfCountries, int caseNumber){
         }
         // match completed countries 
         for (const auto& country : countryIDs){
-            if (countryCount.find(country.first) != countryCount.end()){
-                if (countryCount[country.first] == country.second.first && !countryComplete[country.first]){
-                    completeCountryTime.push_back({country.first, days});
-                    countryComplete[country.first] = true;
-                    completeCountries++;
-                }
+            if (countryCount.find(country.first) != countryCount.end() &&
+                countryCount[country.first] == country.second.first &&
+                !countryComplete[country.first]){                
+                
+                completeCountryTime.push_back({country.first, days});
+                countryComplete[country.first] = true;
+                completeCountries++;                
             }
         }
         
